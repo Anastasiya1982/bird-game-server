@@ -43,7 +43,7 @@ class UserService {
        if(!isPasswordEqual){
            throw ApiError.BadRequest("The password is not correct");
        }
-       const userDto=new UserDto();
+       const userDto=new UserDto(user);
        const tokens=tokenService.generateTokens({...userDto});
        await tokenService.saveToken(userDto.id,tokens.refreshToken);
        return {...tokens, user:userDto}
