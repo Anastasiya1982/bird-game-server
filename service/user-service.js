@@ -18,9 +18,9 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, salt);
 
         const user = await UserModel.create({email, password: hashPassword, activationLink});
-        // await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
 
-        const userDto = new UserDto(user)// id, email, isActivated
+        const userDto = new UserDto(user);// id, email, isActivated
         const tokens = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return {...tokens, user: userDto};
@@ -34,8 +34,7 @@ class UserService {
             }
             user.isActivated = true;
             await user.save();
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e)
         }
 
@@ -55,31 +54,33 @@ class UserService {
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return {...tokens, user: userDto}
     }
-       async logout(refreshToken){
-           const token = await tokenService.removeToken(refreshToken);
-           return token;
+
+    async logout(refreshToken) {
+        const token = await tokenService.removeToken(refreshToken);
+        return token;
     }
-     async refresh(refreshToken) {
+
+    async refresh(refreshToken) {
         if (!refreshToken) {
             throw ApiError.UnauthorizedError();
         }
-        const userData=tokenService.validateRefreshToken(refreshToken);
-        const isTokenInDB= await tokenService.findToken(refreshToken);
-        if(!isTokenInDB || !userData){
-           throw ApiError.UnauthorizedError();
-       }
-        const user=await UserModel.findById(userData.id);
-        const userDto=new UserDto(user);
-        const tokens=tokenService.generateTokens({...userDto});
+        const userData = tokenService.validateRefreshToken(refreshToken);
+        const isTokenInDB = await tokenService.findToken(refreshToken);
+        if (!isTokenInDB || !userData) {
+            throw ApiError.UnauthorizedError();
+        }
+        const user = await UserModel.findById(userData.id);
+        const userDto = new UserDto(user);
+        const tokens = tokenService.generateTokens({...userDto});
 
-         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-         return {...tokens, user: userDto}
+        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        return {...tokens, user: userDto}
     }
 
-       async getAllUsers(){
-        const users=await UserModel.find();
+    async getAllUsers() {
+        const users = await UserModel.find();
         return users;
-       }
+    }
 
 }
 

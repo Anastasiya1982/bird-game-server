@@ -1,0 +1,55 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "airbnb",
+        "prettier"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react",
+        "babel"
+    ],
+    "rules": {
+        "max-len": [
+            "error",
+            {
+                "code": 100
+            }
+        ],
+        "prefer-promise-reject-errors": [
+            "off"
+        ],
+        "react/jsx-filename-extension": [
+            "off"
+        ],
+        "no-return-assign": [
+            "off"
+        ],
+        "react/prop-types": 0,
+        "indent": "off",
+        "no-tabs": 0,
+        "react/jsx-uses-react": 1,
+        "react/jsx-uses-vars": "error",
+        "babel/new-cap": 1,
+        "babel/camelcase": 1,
+        "babel/no-invalid-this": 1,
+        "babel/object-curly-spacing": 0,
+        "babel/semi": 1,
+        "babel/no-unused-expressions": 1,
+        "babel/valid-typeof": 1
+    },
+    "parser": "babel-eslint"
+}
