@@ -3,13 +3,12 @@ const nodemailer = require('nodemailer');
 class MailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            // host: "gmail.com",
             service: "gmail",
             port: 25,
             secure: false,
             auth: {
-                user: "mahanasty1982@gmail.com",
-                pass: "bossanova1982",
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASSWORD,
             },
             tls: {
                 rejectUnauthorized: false
