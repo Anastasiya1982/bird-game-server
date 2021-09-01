@@ -7,8 +7,8 @@ class MailService {
             port: 25,
             secure: false,
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASSWORD,
+                user: "mahanasty1982@gmail.com",
+                pass: "bossanova1982",
             },
             tls: {
                 rejectUnauthorized: false
