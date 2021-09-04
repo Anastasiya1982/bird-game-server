@@ -8,7 +8,7 @@ const ApiError = require('../api-error');
 
 
 class UserService {
-    async registration(email, password) {
+    async registration(name,email, password) {
         const candidate = await UserModel.findOne({email});
         if (candidate) {
             throw ApiError.BadRequest(`The user with email ${email} is already exist`);
@@ -17,7 +17,7 @@ class UserService {
         const salt = await bcrypt.genSalt(10)
         const hashPassword = await bcrypt.hash(password, salt);
 
-        const user = await UserModel.create({email, password: hashPassword, activationLink});
+        const user = await UserModel.create({name:name, email, password: hashPassword, activationLink});
         await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
 
         const userDto = new UserDto(user);// id, email, isActivated
@@ -82,6 +82,37 @@ class UserService {
         return users;
     }
 
-}
+    async updateUser(id,name,email,password) {
+        try {
+           let hashPassword;
+           if(password){
+               hashPassword = await bcrypt.hash(password, 10);
+           }
+            let update = {name:name, email: email};
+           if(hashPassword){
+               update={
+                   ...update,
+                   password: hashPassword
+               }
+           }
+            const option = {new: true} //will return updated document
+
+            const user = await UserModel.findByIdAndUpdate(id, update, option);
+            if (!user) {
+                  throw ApiError.BadRequest('the user was not found');
+                  }
+            const userDto = new UserDto(user);// id, email, isActivated,password
+            const tokens = tokenService.generateTokens({...userDto});
+            await tokenService.saveToken(userDto.id, tokens.refreshToken);
+            return {...tokens, user: userDto};
+            console.log(`Update user with ${id},name:${name},email: ${email} and password:${password}`);
+        }
+
+          catch (e) {
+            throw ApiError.BadRequest('the user is not updated');
+        }
+
+    }
+ }
 
 module.exports = new UserService();

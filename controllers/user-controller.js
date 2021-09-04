@@ -1,7 +1,7 @@
 const userService = require('../service/user-service');
 const {validationResult} = require('express-validator');
 const ApiError = require('../api-error');
-const TIME = 30 * 24 * 60 * 60 * 1000;
+const MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000;
 
 function sendErrorResponse(res, err) {
     return res.status(400).send({
@@ -17,21 +17,21 @@ class UserController {
             if (!errors.isEmpty()) {
                 return next(ApiError.BadRequest("Validation error", errors.array()));
             }
-            const {email, password} = req.body;
-            const userData = await userService.registration(email, password);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: TIME, httpOnly: true});
+            const {name, email, password} = req.body;
+            const userData = await userService.registration(name, email, password);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: MONTH_IN_MS, httpOnly: true});
             return res.json(userData);
         } catch (err) {
-              sendErrorResponse(res,err)
-               }
+            sendErrorResponse(res, err)
         }
+    }
 
 
-    async login(req, res, next) {
+    async login(req, res) {
         try {
             const {email, password} = req.body;
             const userData = await userService.login(email, password);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: MONTH_IN_MS, httpOnly: true});
             return res.json(userData);
         } catch (err) {
             sendErrorResponse(res,err)
@@ -39,7 +39,7 @@ class UserController {
 
     }
 
-    async logout(req, res, next) {
+    async logout(req, res) {
         try {
             const {refreshToken} = req.cookies;
             const token = await userService.logout(refreshToken);
@@ -50,11 +50,12 @@ class UserController {
         }
     }
 
-    async refresh(req, res, next) {
+    async refresh(req, res) {
         try {
             const {refreshToken} = req.cookies;
             const userData = await userService.refresh(refreshToken);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: MONTH_IN_MS, httpOnly: true});
+
             return res.json(userData);
 
         } catch (err){
@@ -62,7 +63,7 @@ class UserController {
         }
     }
 
-    async activate(req, res, next) {
+    async activate(req, res) {
         try {
             const activationLink = req.params.link;
             await userService.activate(activationLink);
@@ -72,7 +73,7 @@ class UserController {
         }
     }
 
-    async getUsers(req, res, next) {
+    async getUsers(req, res) {
         try {
             const users = await userService.getAllUsers();
             return res.json(users);
@@ -81,9 +82,29 @@ class UserController {
         }
     }
 
-    async updateUser(req, res, next) {
+    async getOneUser(req,res){
+        try{
+            res.send("show user"+ req.params.id);
+        }
+        catch (err) {
+           sendErrorResponse(res,err)
+        }
+    }
+    async editUser(req,res){
+        try {
+            res.send("Edit user"+ req.params.id)
+        } catch  (err) {
+            sendErrorResponse(res,err)
+        }
+    }
+
+    async updateUser(req, res) {
         try {
             const userId = req.params.id;
+            const {id, name, email, password} = req.body;
+            const userData=await userService.updateUser(id,name,email, password);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: MONTH_IN_MS, httpOnly: true});
+            return res.json(userData);
         } catch (err) {
             sendErrorResponse(res,err)
         }
